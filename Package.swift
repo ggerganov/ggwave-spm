@@ -12,5 +12,6 @@ let package = Package(
         .target(name: "ggwave", dependencies:[], exclude: ["reed-solomon"]),
         .target(name: "objc-exec", dependencies:["ggwave"]),
         .target(name: "swift-exec", dependencies:["ggwave"])
-    ]
+    ],
+    cxxLanguageStandard: CXXLanguageStandard.cxx11
 )

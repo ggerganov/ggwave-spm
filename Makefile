@@ -9,7 +9,7 @@ update-submodule:
 
 SOURCES := $(shell find Sources/ -print)
 .build: $(SOURCES)
-	swift build -Xcxx -std=c++11
+	swift build
 
 .PHONY:
 build-submodule: update-submodule Package.swift .build
