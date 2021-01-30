@@ -2,7 +2,13 @@
 
 ggwave package for the Swift Package Manager
 
-## Build
+## Using as a package in your project
+
+In XCode: File -> Swift Packages -> Add Package Dependency
+
+Enter package URL: `https://github.com/ggerganov/ggwave-spm`
+
+## Build package from command line
 
 ```bash
 git clone https://github.com/ggeragnov/ggwave-spm
@@ -18,9 +24,3 @@ make build-submodule
 .build/debug/test-objc
 .build/debug/test-swift
 ```
-
-## Using as a package in your project
-
-In XCode: File -> Swift Packages -> Add Package Dependency
-
-Enter package URL: `https://github.com/ggerganov/ggwave-spm`
