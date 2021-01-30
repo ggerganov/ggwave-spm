@@ -10,8 +10,8 @@ let package = Package(
     ],
     targets: [
         .target(name: "ggwave", dependencies:[], exclude: ["reed-solomon"]),
-        .target(name: "objc-exec", dependencies:["ggwave"]),
-        .target(name: "swift-exec", dependencies:["ggwave"])
+        .target(name: "test-objc", dependencies:["ggwave"]),
+        .target(name: "test-swift", dependencies:["ggwave"])
     ],
     cxxLanguageStandard: CXXLanguageStandard.cxx11
 )

@@ -6,6 +6,7 @@ update-submodule:
 	rsync ../../include Sources/ggwave/
 	rsync ../../src/ggwave.cpp Sources/ggwave/
 	rsync ../../src/reed-solomon Sources/ggwave/
+	rsync ../../src/reed-solomon/* Sources/ggwave/reed-solomon/
 
 SOURCES := $(shell find Sources/ -print)
 .build: $(SOURCES)
