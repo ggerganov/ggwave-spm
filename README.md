@@ -21,4 +21,6 @@ make build-submodule
 
 ## Using as a package in your project
 
-TODO
+In XCode: File -> Swift Packages -> Add Package Dependency
+
+Enter package URL: `https://github.com/ggerganov/ggwave-spm`
