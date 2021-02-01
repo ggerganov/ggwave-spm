@@ -16,4 +16,6 @@ jobs:
     - name: Build
       run: swift build -v
     - name: Run tests
-      run: swift test -v
+      run: |
+        .build/debug/test-objc
+        .build/debug/test-swift
