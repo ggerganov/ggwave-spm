@@ -4,6 +4,7 @@ default: build-submodule
 update-submodule:
 	# create a clean (maybe updated) copy of ggwave
 	rsync ../../include Sources/ggwave/
+	rsync ../../include/ggwave/* Sources/ggwave/include/ggwave/
 	rsync ../../src/ggwave.cpp Sources/ggwave/
 	rsync ../../src/resampler.h Sources/ggwave/
 	rsync ../../src/resampler.cpp Sources/ggwave/

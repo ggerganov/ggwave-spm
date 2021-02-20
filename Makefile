@@ -4,6 +4,7 @@ default: build-submodule
 update-submodule:
 	# create a clean (maybe updated) copy of ggwave
 	rsync ../../include Sources/ggwave/
+	rsync ../../include/ggwave/* Sources/ggwave/include/ggwave/
 	rsync ../../src/ggwave.cpp Sources/ggwave/
 	rsync ../../src/resampler.h Sources/ggwave/
 	rsync ../../src/resampler.cpp Sources/ggwave/
@@ -27,7 +28,7 @@ publish: publish-trigger
 		\n\
 		cd /path/to/ggwave/bindings/ios\n\
 		git commit\n\
-		git tag 0.1.5\n\
+		git tag 0.2.0\n\
 		git push origin master --tags\n\
 		"
 
