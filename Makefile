@@ -5,6 +5,8 @@ update-submodule:
 	# create a clean (maybe updated) copy of ggwave
 	rsync ../../include Sources/ggwave/
 	rsync ../../src/ggwave.cpp Sources/ggwave/
+	rsync ../../src/resampler.h Sources/ggwave/
+	rsync ../../src/resampler.cpp Sources/ggwave/
 	rsync ../../src/reed-solomon Sources/ggwave/
 	rsync ../../src/reed-solomon/* Sources/ggwave/reed-solomon/
 
