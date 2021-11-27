@@ -28,7 +28,7 @@ publish: publish-trigger
 		\n\
 		cd /path/to/ggwave/bindings/ios\n\
 		git commit\n\
-		git tag 0.3.0\n\
+		git tag 0.3.1\n\
 		git push origin master --tags\n\
 		"
 
