@@ -24,16 +24,16 @@ int main() {
     const char * payload = "test";
     char decoded[256];
 
-    int n = ggwave_encode(instance, payload, 4, GGWAVE_TX_PROTOCOL_AUDIBLE_FAST, 50, NULL, 1);
+    int n = ggwave_encode(instance, payload, 4, GGWAVE_PROTOCOL_AUDIBLE_FAST, 50, NULL, 1);
     char waveform[n];
 
-    ret = ggwave_encode(instance, payload, 4, GGWAVE_TX_PROTOCOL_AUDIBLE_FAST, 50, waveform, 0);
+    ret = ggwave_encode(instance, payload, 4, GGWAVE_PROTOCOL_AUDIBLE_FAST, 50, waveform, 0);
     CHECK(ret > 0);
 
-    ret = ggwave_decode(instance, waveform, sizeof(int16_t)*ret, decoded);
+    ret = ggwave_decode(instance, waveform, ret, decoded);
     CHECK(ret == 4);
 
-    CHECK(strcmp(decoded, payload) == 0);
+    CHECK(strncmp(decoded, payload, ret) == 0);
 
     ggwave_free(instance);
 

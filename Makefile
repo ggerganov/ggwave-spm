@@ -6,8 +6,7 @@ update-submodule:
 	rsync ../../include Sources/ggwave/
 	rsync ../../include/ggwave/* Sources/ggwave/include/ggwave/
 	rsync ../../src/ggwave.cpp Sources/ggwave/
-	rsync ../../src/resampler.h Sources/ggwave/
-	rsync ../../src/resampler.cpp Sources/ggwave/
+	rsync ../../src/fft.h Sources/ggwave/
 	rsync ../../src/reed-solomon Sources/ggwave/
 	rsync ../../src/reed-solomon/* Sources/ggwave/reed-solomon/
 
@@ -28,7 +27,7 @@ publish: publish-trigger
 		\n\
 		cd /path/to/ggwave/bindings/ios\n\
 		git commit\n\
-		git tag 0.3.1\n\
+		git tag 0.4.0\n\
 		git push origin master --tags\n\
 		"
 
