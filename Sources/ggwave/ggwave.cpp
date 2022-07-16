@@ -17,9 +17,11 @@
 
 #ifdef ARDUINO
 #define ggprintf(...)
-#else
+#elseif DEBUG
 #define ggprintf(...) \
     g_fptr && fprintf(g_fptr, __VA_ARGS__)
+#else
+#define ggprintf(...)
 #endif
 
 #define GG_MIN(A, B) (((A) < (B)) ? (A) : (B))
