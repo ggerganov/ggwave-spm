@@ -15,7 +15,7 @@
 #    define GGWAVE_API
 #endif
 
-#if defined(ARDUINO)
+#if defined(ARDUINO_UNO)
 #define GGWAVE_CONFIG_FEW_PROTOCOLS
 #endif
 
@@ -71,6 +71,12 @@ extern "C" {
 #endif
         GGWAVE_PROTOCOL_COUNT,
     } ggwave_ProtocolId;
+
+    typedef enum {
+        GGWAVE_FILTER_HANN,
+        GGWAVE_FILTER_HAMMING,
+        GGWAVE_FILTER_FIRST_ORDER_HIGH_PASS,
+    } ggwave_Filter;
 
     // Operating modes of ggwave
     //
@@ -263,6 +269,7 @@ extern "C" {
     //
     //         int ret = ggwave_decode(instance, waveform, samplesPerFrame*sizeOfSample_bytes, payload);
     //         if (ret > 0) {
+    //             payload[ret] = 0; // null terminate the string
     //             printf("Received payload: '%s'\n", payload);
     //         }
     //     }
@@ -322,6 +329,16 @@ extern "C" {
     GGWAVE_API void ggwave_txToggleProtocol(
             ggwave_ProtocolId protocolId,
             int state);
+
+    // Set freqStart for an Rx protocol
+    GGWAVE_API void ggwave_rxProtocolSetFreqStart(
+            ggwave_ProtocolId protocolId,
+            int freqStart);
+
+    // Set freqStart for a Tx protocol
+    GGWAVE_API void ggwave_txProtocolSetFreqStart(
+            ggwave_ProtocolId protocolId,
+            int freqStart);
 
 #ifdef __cplusplus
 }
@@ -488,28 +505,30 @@ public:
                     protocols.data[i].name = nullptr;
                     protocols.data[i].enabled = false;
                 }
-#ifndef ARDUINO
-#define PSTR(str) (str)
+
+#if defined(ARDUINO_AVR_UNO)
+// For Arduino Uno, we put the strings in PROGMEM to save as much RAM as possible:
+#define GGWAVE_PSTR PSTR
+#else
+#define GGWAVE_PSTR(str) (str)
 #endif
 
 #ifndef GGWAVE_CONFIG_FEW_PROTOCOLS
-                protocols.data[GGWAVE_PROTOCOL_AUDIBLE_NORMAL]     = { PSTR("Normal"),       40,  9, 3, 1, true, };
-                protocols.data[GGWAVE_PROTOCOL_AUDIBLE_FAST]       = { PSTR("Fast"),         40,  6, 3, 1, true, };
-                protocols.data[GGWAVE_PROTOCOL_AUDIBLE_FASTEST]    = { PSTR("Fastest"),      40,  3, 3, 1, true, };
-                protocols.data[GGWAVE_PROTOCOL_ULTRASOUND_NORMAL]  = { PSTR("[U] Normal"),   320, 9, 3, 1, true, };
-                protocols.data[GGWAVE_PROTOCOL_ULTRASOUND_FAST]    = { PSTR("[U] Fast"),     320, 6, 3, 1, true, };
-                protocols.data[GGWAVE_PROTOCOL_ULTRASOUND_FASTEST] = { PSTR("[U] Fastest"),  320, 3, 3, 1, true, };
+                protocols.data[GGWAVE_PROTOCOL_AUDIBLE_NORMAL]     = { GGWAVE_PSTR("Normal"),       40,  9, 3, 1, true, };
+                protocols.data[GGWAVE_PROTOCOL_AUDIBLE_FAST]       = { GGWAVE_PSTR("Fast"),         40,  6, 3, 1, true, };
+                protocols.data[GGWAVE_PROTOCOL_AUDIBLE_FASTEST]    = { GGWAVE_PSTR("Fastest"),      40,  3, 3, 1, true, };
+                protocols.data[GGWAVE_PROTOCOL_ULTRASOUND_NORMAL]  = { GGWAVE_PSTR("[U] Normal"),   320, 9, 3, 1, true, };
+                protocols.data[GGWAVE_PROTOCOL_ULTRASOUND_FAST]    = { GGWAVE_PSTR("[U] Fast"),     320, 6, 3, 1, true, };
+                protocols.data[GGWAVE_PROTOCOL_ULTRASOUND_FASTEST] = { GGWAVE_PSTR("[U] Fastest"),  320, 3, 3, 1, true, };
 #endif
-                protocols.data[GGWAVE_PROTOCOL_DT_NORMAL]          = { PSTR("[DT] Normal"),  24,  9, 1, 1, true, };
-                protocols.data[GGWAVE_PROTOCOL_DT_FAST]            = { PSTR("[DT] Fast"),    24,  6, 1, 1, true, };
-                protocols.data[GGWAVE_PROTOCOL_DT_FASTEST]         = { PSTR("[DT] Fastest"), 24,  3, 1, 1, true, };
-                protocols.data[GGWAVE_PROTOCOL_MT_NORMAL]          = { PSTR("[MT] Normal"),  24,  9, 1, 2, true, };
-                protocols.data[GGWAVE_PROTOCOL_MT_FAST]            = { PSTR("[MT] Fast"),    24,  6, 1, 2, true, };
-                protocols.data[GGWAVE_PROTOCOL_MT_FASTEST]         = { PSTR("[MT] Fastest"), 24,  3, 1, 2, true, };
+                protocols.data[GGWAVE_PROTOCOL_DT_NORMAL]          = { GGWAVE_PSTR("[DT] Normal"),  24,  9, 1, 1, true, };
+                protocols.data[GGWAVE_PROTOCOL_DT_FAST]            = { GGWAVE_PSTR("[DT] Fast"),    24,  6, 1, 1, true, };
+                protocols.data[GGWAVE_PROTOCOL_DT_FASTEST]         = { GGWAVE_PSTR("[DT] Fastest"), 24,  3, 1, 1, true, };
+                protocols.data[GGWAVE_PROTOCOL_MT_NORMAL]          = { GGWAVE_PSTR("[MT] Normal"),  24,  9, 1, 2, true, };
+                protocols.data[GGWAVE_PROTOCOL_MT_FAST]            = { GGWAVE_PSTR("[MT] Fast"),    24,  6, 1, 2, true, };
+                protocols.data[GGWAVE_PROTOCOL_MT_FASTEST]         = { GGWAVE_PSTR("[MT] Fastest"), 24,  3, 1, 2, true, };
 
-#ifndef ARDUINO
-#undef PSTR
-#endif
+#undef GGWAVE_PSTR
                 initialized = true;
             }
 
@@ -762,6 +781,46 @@ public:
     //   N must be == samplesPerFrame()
     //
     bool computeFFTR(const float * src, float * dst, int N);
+
+    // Compute FFT of real values (static)
+    //
+    //   src - input real-valued data, size is N
+    //   dst - output complex-valued data, size is 2*N
+    //   wi  - work buffer, with size 2*N
+    //   wf  - work buffer, with size 3 + sqrt(N/2)
+    //
+    //   First time calling this function, make sure that wi[0] == 0
+    //   This will initialize some internal coefficients and store them in wi and wf for
+    //   future usage.
+    //
+    //   If wi == nullptr                   - returns the needed size for wi
+    //   If wi != nullptr and wf == nullptr - returns the needed size for wf
+    //   If wi != nullptr and wf != nullptr - returns 1 on success, 0 on failure
+    //
+    static int computeFFTR(const float * src, float * dst, int N, int * wi, float * wf);
+
+    // Filter the waveform
+    //
+    //   filter   - filter to use
+    //   waveform - input waveform, size is N
+    //   N        - number of samples in the waveform
+    //   p0       - parameter
+    //   p1       - parameter
+    //   w        - work buffer
+    //
+    //   Filter is applied in-place.
+    //   First time calling this function, make sure that w[0] == 0 and w[1] == 0
+    //   This will initialize some internal coefficients and store them in w for
+    //   future usage.
+    //
+    //   For GGWAVE_FILTER_FIRST_ORDER_HIGH_PASS:
+    //     - p0 = cutoff frequency in Hz
+    //     - p1 = sample rate in Hz
+    //
+    //   If w == nullptr - returns the needed size for w for the specified filter
+    //   If w != nullptr - returns 1 on success, 0 on failure
+    //
+    static int filter(ggwave_Filter filter, float * waveform, int N, float p0, float p1, float * w);
 
     // Resample audio waveforms from one sample rate to another using sinc interpolation
     class Resampler {
